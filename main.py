@@ -1,3 +1,6 @@
+from gameBoard import GameBoard, TileNotEmptyException
+
+
 def cls():
     """
     Clear the screen
@@ -14,36 +17,41 @@ def line():
     print('-----------')
 
 
-def grid_lines():
-    """
-    Print one empty grid line of the game board (3x1 tiles)
-    :return: None
-    """
-    print('   |   |   ')
-
-
 def draw_board():
     """
-    Prints the game board (3x3 tiles)
+    Prints the game board from the GameBoard model
     :return: None
     """
-    grid_lines()
+    global board
+    print(' {} | {} | {} '.format(board.columns[0][0], board.columns[1][0], board.columns[2][0]))
     line()
-    grid_lines()
+    print(' {} | {} | {} '.format(board.columns[0][1], board.columns[1][1], board.columns[2][1]))
     line()
-    grid_lines()
+    print(' {} | {} | {} '.format(board.columns[0][2], board.columns[1][2], board.columns[2][2]))
 
 
-PLAYERS = ['X', 'O']
-active_player = PLAYERS[0]
-turn = 0
+board = GameBoard()
 running = True
 while running:
     cls()
     draw_board()
-    print(f"{active_player}'s turn")
-    row_col = input("row (1-3), column (1-3): ")
-    coords = tuple(int(x) for x in row_col.split(','))
-    turn += 1
-    print(turn)
-    active_player = PLAYERS[turn % 2]
+    print(f"Turn no. {board.turn+1}")
+    print(f"{board.active_player}'s turn")
+    input_invalid = True
+    while input_invalid:
+        column = input("column: ")
+        row = input("row: ")
+        try:
+            c = int(column)
+            r = int(row)
+            board.play(row=r, column=c)
+        except TileNotEmptyException:
+            print("This tile is not empty")
+        except Exception as e:
+            print(e)
+        else:
+            input_invalid = False
+    running = not board.game_is_over
+
+cls()
+draw_board()
