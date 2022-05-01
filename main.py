@@ -55,3 +55,4 @@ while running:
 
 cls()
 draw_board()
+print(board.result)

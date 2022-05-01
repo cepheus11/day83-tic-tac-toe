@@ -13,9 +13,9 @@ def test_turn_increase(board):
     :param board: GameBoard from fixture "board"
     :return: None
     """
-    assert(board.turn == 0)
+    assert (board.turn == 0)
     board.play(0, 0)
-    assert(board.turn == 1)
+    assert (board.turn == 1)
 
 
 def test_play(board):
@@ -24,11 +24,11 @@ def test_play(board):
     :param board: GameBoard from fixture "board"
     :return: None
     """
-    assert(board.active_player == 'X')
+    assert (board.active_player == 'X')
     board.play(0, 0)
-    assert(board.active_player == 'O')
+    assert (board.active_player == 'O')
     board.play(0, 1)
-    assert(board.active_player == 'X')
+    assert (board.active_player == 'X')
 
 
 def test_board_not_full(board):
@@ -63,9 +63,9 @@ def test_board_full(board):
     :param board: GameBoard from fixture "board"
     :return: None
     """
-    for col in range(3):
-        for row in range(3):
-            board.play(row=row, column=col)
+    moves = [(1, 1), (0, 0), (1, 2), (1, 0), (2, 0), (0, 2), (0, 1), (2, 1), (2, 2)]
+    for i in range(len(moves)):
+        board.play(moves[i][0], moves[i][1])
     assert board.game_is_over
 
 
@@ -87,3 +87,53 @@ def test_tile_not_empty(board, row, column):
         assert False
     else:
         assert False
+
+
+@pytest.mark.parametrize("moves", [[(0, 0), (0, 1), (1, 0), (1, 1), (2, 0)],
+                                   [(0, 1), (0, 0), (1, 1), (1, 0), (2, 1)],
+                                   [(0, 2), (0, 1), (1, 2), (1, 1), (2, 2)],
+                                   [(0, 0), (1, 0), (0, 1), (1, 1), (0, 2)],
+                                   [(1, 0), (0, 0), (1, 1), (0, 1), (1, 2)],
+                                   [(2, 0), (1, 0), (2, 1), (1, 1), (2, 2)],
+                                   [(0, 0), (1, 0), (1, 1), (2, 0), (2, 2)],
+                                   [(2, 0), (0, 0), (1, 1), (2, 2), (0, 2)]
+                         ])
+def test_player_has_won(board, moves):
+    """
+    Tests several games for the winning condition
+    :param board: GameBoard from fixture "board"
+    :param moves: list of (int, int): The moves to play. Always 5 moves X,O,X,O,X. X always wins.
+    :return: None
+    """
+    # X
+    board.play(moves[0][0], moves[0][1])
+    assert(not board.player_has_won('X'))
+    # O
+    board.play(moves[1][0], moves[1][1])
+    assert(not board.player_has_won('O'))
+    # X
+    board.play(moves[2][0], moves[2][1])
+    assert(not board.player_has_won('X'))
+    # O
+    board.play(moves[3][0], moves[3][1])
+    assert(not board.player_has_won('O'))
+    # X
+    board.play(moves[4][0], moves[4][1])
+    # X has won now, with the upper row
+    assert(board.player_has_won('X'))
+
+
+@pytest.mark.parametrize("moves", [[(1, 1), (0, 0), (1, 2), (1, 0), (2, 0), (0, 2), (0, 1), (2, 1), (2, 2)],
+                                   [(1, 1), (1, 0), (2, 2), (0, 0), (2, 0), (0, 2), (0, 1), (2, 1), (1, 2)]
+                                   ])
+def test_player_has_not_won(board, moves):
+    """
+    Tests several games with result "draw"
+    :param board: GameBoard from fixture "board"
+    :param moves: moves: list of (int, int): The moves to play. Always 9 moves.
+    :return: None
+    """
+    for i in range(len(moves)):
+        player = board.PLAYERS[board._turn % 2]
+        board.play(moves[i][0], moves[i][1])
+        assert(not board.player_has_won(player))
